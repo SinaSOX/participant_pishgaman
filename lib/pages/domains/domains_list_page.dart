@@ -24,13 +24,20 @@ class _DomainsListPageState extends State<DomainsListPage> {
   }
 
   Future<void> _loadDomains() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final response = await ApiService.getDomains(page: 1, limit: 20, isActive: 1);
+      final response = await ApiService.getDomains(
+        page: 1,
+        limit: 20,
+        isActive: 1,
+      );
+
+      if (!mounted) return;
 
       if (response['success'] == true) {
         final data = response['data'];
@@ -48,22 +55,28 @@ class _DomainsListPageState extends State<DomainsListPage> {
           }).toList();
         }
 
-        setState(() {
-          _domains = domains;
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _domains = domains;
+            _isLoading = false;
+          });
+        }
       } else {
-        setState(() {
-          _errorMessage = response['message'] ?? 'خطا در دریافت حوزه‌ها';
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _errorMessage = response['message'] ?? 'خطا در دریافت حوزه‌ها';
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
       print('❌ Error loading domains: $e');
-      setState(() {
-        _errorMessage = 'خطا در ارتباط با سرور: ${e.toString()}';
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'خطا در ارتباط با سرور: ${e.toString()}';
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -74,7 +87,7 @@ class _DomainsListPageState extends State<DomainsListPage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
-            'معرفی رشته‌ها',
+            'معرفی حوزه‌ها',
             style: TextStyle(
               fontFamily: 'Farhang',
               fontWeight: FontWeight.bold,
@@ -150,7 +163,11 @@ class _DomainsListPageState extends State<DomainsListPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.business_outlined, size: 64, color: Colors.grey.shade400),
+            Icon(
+              Icons.business_outlined,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
             const SizedBox(height: 16),
             Text(
               'حوزه‌ای یافت نشد',
@@ -182,9 +199,7 @@ class _DomainsListPageState extends State<DomainsListPage> {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: Colors.white,
       child: InkWell(
         onTap: () {
@@ -265,10 +280,7 @@ class _DomainsListPageState extends State<DomainsListPage> {
                       ],
                     ),
                   ),
-                  const Icon(
-                    Icons.chevron_left,
-                    color: AppColors.primary,
-                  ),
+                  const Icon(Icons.chevron_left, color: AppColors.primary),
                 ],
               ),
               if (domain.description.isNotEmpty) ...[
@@ -313,4 +325,3 @@ class _DomainsListPageState extends State<DomainsListPage> {
     );
   }
 }
-

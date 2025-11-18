@@ -68,8 +68,19 @@ class _FeedbackPageState extends State<FeedbackPage> {
     if (!mounted) return;
 
     if (response['success'] == true) {
-      final List<FeedbackEntry> entries =
-          (response['data'] as List<FeedbackEntry>).toList();
+      final data = response['data'];
+      List<FeedbackEntry> entries = [];
+      if (data is List) {
+        entries = data
+            .map(
+              (item) => item is FeedbackEntry
+                  ? item
+                  : FeedbackEntry.fromJson(
+                      Map<String, dynamic>.from(item as Map),
+                    ),
+            )
+            .toList();
+      }
       setState(() {
         _feedbackHistory
           ..clear()

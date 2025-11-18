@@ -11,7 +11,7 @@ import '../services/auth_service.dart';
 
 class ApiService {
   // Base URL - Main domain (primary)
-  static const String baseUrl = 'https://pishgaman.s79.ir/api';
+  static const String baseUrl = 'http://g.sinaseifouri.ir/api';
   
   // Backup domain for all API requests (HTTP)
   static const String backupBaseUrl = 'http://g.sinaseifouri.ir/api';

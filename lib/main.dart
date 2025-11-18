@@ -19,6 +19,8 @@ import 'package:participant_pishgaman/pages/domains/domains_list_page.dart';
 import 'package:participant_pishgaman/services/onboarding_service.dart';
 import 'package:participant_pishgaman/services/auth_service.dart';
 import 'package:participant_pishgaman/services/push_notification_service.dart';
+import 'package:participant_pishgaman/services/update_service.dart';
+import 'package:participant_pishgaman/components/update_dialog.dart';
 import 'package:participant_pishgaman/constants/app_colors.dart';
 import 'package:participant_pishgaman/components/custom_bottom_nav.dart';
 
@@ -317,12 +319,13 @@ class _MyHomePageState extends State<MyHomePage> {
   final PageController _sliderController = PageController();
   int _currentSliderIndex = 0;
   Timer? _sliderTimer;
+  bool _updateChecked = false; // Flag to check update only once
 
-  // لیست تصاویر لورم ایپسوم برای اسلایدر
+  // لیست تصاویر اسلایدر صفحه اصلی
   final List<String> _sliderImages = [
-    'https://picsum.photos/400/200?random=1',
-    'https://picsum.photos/400/200?random=2',
-    'https://picsum.photos/400/200?random=3',
+    'http://g.sinaseifouri.ir/slider/mains1.jpg',
+    'http://g.sinaseifouri.ir/slider/mains2.jpg',
+    'http://g.sinaseifouri.ir/slider/mains3.jpg',
   ];
 
   @override
@@ -330,6 +333,10 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     // شروع تایمر برای اسلایدر خودکار
     _startSliderTimer();
+    // Check for updates after the page is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForUpdates();
+    });
   }
 
   @override
@@ -354,6 +361,64 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       }
     });
+  }
+
+  Future<void> _checkForUpdates() async {
+    // Check only once
+    if (_updateChecked) {
+      debugPrint('⚠️ Update already checked, skipping...');
+      return;
+    }
+    _updateChecked = true;
+    debugPrint('✅ Starting update check...');
+
+    try {
+      // Wait a bit to ensure the UI is ready
+      await Future.delayed(const Duration(milliseconds: 1000));
+      
+      if (!mounted) {
+        debugPrint('⚠️ Widget not mounted, skipping update check');
+        return;
+      }
+
+      debugPrint('🔍 Checking for updates from MyHomePage...');
+      final updateService = UpdateService();
+      final updateInfo = await updateService.checkForUpdate();
+
+      debugPrint('📊 Update check result: ${updateInfo != null ? "Update available" : "No update"}');
+      
+      if (updateInfo != null && mounted) {
+        debugPrint('🆕 Update available! Version: ${updateInfo.version}, Force: ${updateInfo.force}');
+        debugPrint('🆕 Update URL: ${updateInfo.updateUrl}');
+        debugPrint('🆕 Showing update dialog...');
+        
+        // Show update dialog
+        if (mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: !updateInfo.force, // Can't dismiss if force update
+            builder: (BuildContext context) {
+              debugPrint('✅ Update dialog builder called');
+              return UpdateDialog(updateInfo: updateInfo);
+            },
+          );
+          debugPrint('✅ showDialog called successfully');
+        } else {
+          debugPrint('⚠️ Widget not mounted when trying to show dialog');
+        }
+      } else {
+        if (updateInfo == null) {
+          debugPrint('✅ No update available');
+        } else {
+          debugPrint('⚠️ Update info is null or widget not mounted');
+        }
+      }
+    } catch (e, stackTrace) {
+      debugPrint('❌ Error checking for updates: $e');
+      debugPrint('❌ Stack trace: $stackTrace');
+      // Don't show error to user, just log it
+      _updateChecked = false; // Allow retry on error
+    }
   }
 
   void _onNavTap(int index) {
@@ -399,16 +464,9 @@ class _MyHomePageState extends State<MyHomePage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('خانه'),
+          title: const Text('پیشگامان رهایی'),
           backgroundColor: Colors.white,
           foregroundColor: primaryTurquoise,
-          leading: Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: IconButton(
-              icon: const Icon(FontAwesomeIcons.bell, color: AppColors.primary),
-              onPressed: () {},
-            ),
-          ),
         ),
         body: _buildHomePage(context, primaryTurquoise, darkGray),
         bottomNavigationBar: CustomBottomNav(
@@ -483,21 +541,9 @@ class _MyHomePageState extends State<MyHomePage> {
       },
       {
         'icon': FontAwesomeIcons.sitemap,
-        'title': 'معرفی رشته ها',
+        'title': 'معرفی حوزه ها',
         'color': AppColors.primary,
         'route': const DomainsListPage(),
-      },
-      {
-        'icon': FontAwesomeIcons.infoCircle,
-        'title': 'درباره ما',
-        'color': AppColors.primary,
-        'route': null,
-      },
-      {
-        'icon': FontAwesomeIcons.book,
-        'title': 'دوره‌ها',
-        'color': AppColors.primary,
-        'route': null,
       },
       {
         'icon': FontAwesomeIcons.images,
@@ -516,6 +562,12 @@ class _MyHomePageState extends State<MyHomePage> {
         'title': 'پیشنهاد و انتقاد',
         'color': AppColors.primary,
         'route': const FeedbackPage(),
+      },
+      {
+        'icon': FontAwesomeIcons.infoCircle,
+        'title': 'درباره ما',
+        'color': AppColors.primary,
+        'route': null,
       },
       {
         'icon': FontAwesomeIcons.ellipsis,
@@ -571,6 +623,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     context,
                     MaterialPageRoute(builder: (context) => route),
                   );
+                } else if (item['title'] == 'درباره ما') {
+                  _showAboutUs();
                 }
               },
               borderRadius: BorderRadius.circular(16),
@@ -708,6 +762,312 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showAboutUs() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              constraints: const BoxConstraints(maxHeight: 600),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.info_outline,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        const Expanded(
+                          child: Text(
+                            'درباره ما',
+                            style: TextStyle(
+                              fontFamily: 'Farhang',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Content
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // App Name
+                          Center(
+                            child: Text(
+                              'پیشگامان رهایی',
+                              style: TextStyle(
+                                fontFamily: 'Farhang',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Center(
+                            child: Text(
+                              'پلتفرم جامع یادگیری و آموزش',
+                              style: TextStyle(
+                                fontFamily: 'Farhang',
+                                fontSize: 14,
+                                color: AppColors.grey,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          const Divider(),
+                          const SizedBox(height: 16),
+                          
+                          // Mission
+                          _buildAboutSection(
+                            'رسالت ما',
+                            'پیشگامان رهایی با هدف ایجاد تحولی بنیادین در نظام آموزشی و یادگیری، پلتفرمی جامع و کاربردی را طراحی کرده است. ما معتقدیم که یادگیری باید در دسترس همه باشد و با استفاده از تکنولوژی‌های روز دنیا، تجربه‌ای لذت‌بخش و مؤثر از آموزش را برای کاربران خود فراهم می‌کنیم.',
+                            Icons.flag,
+                          ),
+                          const SizedBox(height: 20),
+                          
+                          // Vision
+                          _buildAboutSection(
+                            'چشم‌انداز',
+                            'ما در پیشگامان رهایی، به دنبال تبدیل شدن به برترین پلتفرم آموزشی در منطقه هستیم. هدف ما این است که با ارائه محتوای با کیفیت، روش‌های نوین یادگیری و پشتیبانی مستمر، به میلیون‌ها کاربر کمک کنیم تا به اهداف آموزشی و حرفه‌ای خود دست یابند.',
+                            Icons.visibility,
+                          ),
+                          const SizedBox(height: 20),
+                          
+                          // Features
+                          Text(
+                            'ویژگی‌های اصلی',
+                            style: TextStyle(
+                              fontFamily: 'Farhang',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildFeatureItem('📚 دوره‌های آموزشی جامع و متنوع'),
+                          _buildFeatureItem('🖼️ گالری محتوا با دسترسی آسان'),
+                          _buildFeatureItem('👤 پروفایل کاربری کامل و شخصی‌سازی شده'),
+                          _buildFeatureItem('🗺️ مسیر یادگیری هوشمند و شخصی‌سازی شده'),
+                          _buildFeatureItem('💬 پشتیبانی هوشمند با هوش مصنوعی'),
+                          _buildFeatureItem('📊 نظرسنجی و بازخورد تعاملی'),
+                          _buildFeatureItem('🎓 گواهینامه و مدارک معتبر'),
+                          _buildFeatureItem('📱 رابط کاربری ساده و زیبا'),
+                          const SizedBox(height: 20),
+                          
+                          // Values
+                          _buildAboutSection(
+                            'ارزش‌های ما',
+                            'ما در پیشگامان رهایی به کیفیت، نوآوری، تعهد به کاربران و شفافیت پایبند هستیم. تیم ما همواره در تلاش است تا با به‌روزرسانی مستمر و بهبود تجربه کاربری، بهترین خدمات را ارائه دهد.',
+                            Icons.favorite,
+                          ),
+                          const SizedBox(height: 20),
+                          
+                          // Contact
+                          Text(
+                            'ارتباط با ما',
+                            style: TextStyle(
+                              fontFamily: 'Farhang',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildContactItem('📧 ایمیل', 'support@pishgamanrahyai.ir'),
+                          _buildContactItem('📞 تلفن', '021-12345678'),
+                          _buildContactItem('🌐 وب‌سایت', 'www.pishgamanrahyai.ir'),
+                          const SizedBox(height: 20),
+                          
+                          const Divider(),
+                          const SizedBox(height: 12),
+                          
+                          // Version
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                size: 16,
+                                color: AppColors.grey,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'نسخه: 1.0.0',
+                                style: TextStyle(
+                                  fontFamily: 'Farhang',
+                                  color: AppColors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Center(
+                            child: Text(
+                              '© ۱۴۰۳ پیشگامان رهایی. تمامی حقوق محفوظ است.',
+                              style: TextStyle(
+                                fontFamily: 'Farhang',
+                                color: AppColors.grey,
+                                fontSize: 11,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Footer Button
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'بستن',
+                          style: TextStyle(
+                            fontFamily: 'Farhang',
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+  
+  Widget _buildAboutSection(String title, String content, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontFamily: 'Farhang',
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          content,
+          style: const TextStyle(
+            fontFamily: 'Farhang',
+            height: 1.8,
+            fontSize: 14,
+            color: AppColors.darkGray,
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildContactItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'Farhang',
+                fontSize: 13,
+                color: AppColors.grey,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontFamily: 'Farhang',
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkGray,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        text,
+        style: const TextStyle(fontFamily: 'Farhang', height: 1.6),
       ),
     );
   }

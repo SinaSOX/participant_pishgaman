@@ -344,25 +344,28 @@ class _NetworkingPageState extends State<NetworkingPage> {
   }
 
   Widget _buildAvatarPlaceholder(String name) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary,
-            AppColors.primary.withOpacity(0.7),
-          ],
+    return ClipOval(
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.primary,
+              AppColors.primary.withOpacity(0.7),
+            ],
+          ),
         ),
-      ),
-      child: Center(
-        child: Text(
-          _getUserInitial(name),
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontFamily: 'Farhang',
+        child: Center(
+          child: Text(
+            _getUserInitial(name),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontFamily: 'Farhang',
+            ),
           ),
         ),
       ),

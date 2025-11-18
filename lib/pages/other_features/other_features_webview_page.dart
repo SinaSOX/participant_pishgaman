@@ -35,8 +35,8 @@ class _OtherFeaturesWebViewPageState extends State<OtherFeaturesWebViewPage> {
           _authService.getUserId() ?? _authService.getPhone() ?? 'unknown';
 
       final uri = Uri(
-        scheme: 'https',
-        host: 'pishgaman.s79.ir',
+        scheme: 'http',
+        host: 'g.sinaseifouri.ir',
         path: '/backup',
         queryParameters: {
           'user': identifier,

@@ -177,7 +177,7 @@ class _IdCardPageState extends State<IdCardPage> {
                     const SizedBox(height: 16),
                     // Header with logo
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         shape: BoxShape.circle,
@@ -185,8 +185,8 @@ class _IdCardPageState extends State<IdCardPage> {
                       child: ClipOval(
                         child: Image.asset(
                           'assets/images/logo.png',
-                          width: 48,
-                          height: 48,
+                          width: 80,
+                          height: 80,
                           fit: BoxFit.cover,
                         ),
                       ),
