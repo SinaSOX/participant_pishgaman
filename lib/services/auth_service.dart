@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:participant_pishgaman/constants/app_constants.dart';
 import 'package:participant_pishgaman/services/storage_service.dart';
+import 'package:participant_pishgaman/services/push_notification_service.dart';
+import 'package:participant_pishgaman/services/onboarding_service.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -264,6 +266,15 @@ class AuthService {
       await _storageService.setBool(AppConstants.isLoggedInKey, true);
       print('✅ User marked as logged in');
 
+      // Update OneSignal with user ID
+      if (userId != null) {
+        try {
+          await PushNotificationService().updateUserLogin(userId);
+        } catch (e) {
+          print('⚠️ Error updating OneSignal user: $e');
+        }
+      }
+
       return true;
     } catch (e) {
       print('❌ Error saving auth data: $e');
@@ -393,6 +404,21 @@ class AuthService {
 
       await _storageService.setBool(AppConstants.isLoggedInKey, false);
       print('✅ Logout completed - all data cleared');
+
+      // Reset intro completion status so intro pages show again after logout
+      try {
+        await OnboardingService().resetIntro();
+        print('✅ Intro status reset');
+      } catch (e) {
+        print('⚠️ Error resetting intro: $e');
+      }
+
+      // Logout from OneSignal
+      try {
+        await PushNotificationService().logout();
+      } catch (e) {
+        print('⚠️ Error logging out from OneSignal: $e');
+      }
 
       return true;
     } catch (e) {

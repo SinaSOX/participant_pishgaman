@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:cross_file/cross_file.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../constants/app_colors.dart';
@@ -13,10 +13,7 @@ import '../../models/gallery_post.dart';
 class GalleryDetailPage extends StatefulWidget {
   final GalleryPost post;
 
-  const GalleryDetailPage({
-    super.key,
-    required this.post,
-  });
+  const GalleryDetailPage({super.key, required this.post});
 
   @override
   State<GalleryDetailPage> createState() => _GalleryDetailPageState();
@@ -25,6 +22,26 @@ class GalleryDetailPage extends StatefulWidget {
 class _GalleryDetailPageState extends State<GalleryDetailPage> {
   bool _isDownloading = false;
   bool _isSharing = false;
+
+  // Create HTTP client with relaxed SSL validation for image downloads
+  // This is needed for servers with outdated SSL/TLS configurations
+  static http.Client _createImageHttpClient() {
+    final httpClient = HttpClient();
+    // Allow bad certificates for image downloads (only for specific problematic domains)
+    httpClient.badCertificateCallback =
+        (X509Certificate cert, String host, int port) {
+          // Only allow for known problematic domains
+          final hostLower = host.toLowerCase();
+          if (hostLower.contains('sinaseifouri.ir')) {
+            print(
+              '⚠️ Allowing SSL connection to $host (outdated SSL configuration)',
+            );
+            return true;
+          }
+          return false;
+        };
+    return IOClient(httpClient);
+  }
 
   Future<void> _downloadImage() async {
     setState(() {
@@ -37,7 +54,7 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
         // For Android 13+ (API 33+), use photos permission
         // For Android 10-12, use storage permission
         PermissionStatus status;
-        
+
         try {
           // Try photos permission first (for Android 13+)
           status = await Permission.photos.request();
@@ -55,7 +72,9 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('خطا در درخواست دسترسی. لطفاً از تنظیمات دسترسی دهید.'),
+                  content: Text(
+                    'خطا در درخواست دسترسی. لطفاً از تنظیمات دسترسی دهید.',
+                  ),
                   backgroundColor: Colors.red,
                 ),
               );
@@ -66,7 +85,7 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
             return;
           }
         }
-        
+
         if (!status.isGranted) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -104,7 +123,9 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('خطا در درخواست دسترسی. لطفاً از تنظیمات دسترسی دهید.'),
+                content: Text(
+                  'خطا در درخواست دسترسی. لطفاً از تنظیمات دسترسی دهید.',
+                ),
                 backgroundColor: Colors.red,
               ),
             );
@@ -116,8 +137,14 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
         }
       }
 
-      // Download image
-      final response = await http.get(Uri.parse(widget.post.imageUrl));
+      // Download image using custom HTTP client that handles SSL issues
+      final imageClient = _createImageHttpClient();
+      http.Response response;
+      try {
+        response = await imageClient.get(Uri.parse(widget.post.imageUrl));
+      } finally {
+        imageClient.close();
+      }
       if (response.statusCode == 200) {
         // Get directory for saving
         Directory? directory;
@@ -128,7 +155,8 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
               directory = await getExternalStorageDirectory();
               // Navigate to Downloads folder if possible
               if (directory != null) {
-                final downloadsPath = '${directory.path.split('/Android')[0]}/Download';
+                final downloadsPath =
+                    '${directory.path.split('/Android')[0]}/Download';
                 final downloadsDir = Directory(downloadsPath);
                 if (await downloadsDir.exists()) {
                   directory = downloadsDir;
@@ -155,7 +183,8 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
           }
 
           // Save image
-          final fileName = '${widget.post.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+          final fileName =
+              '${widget.post.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
           final file = File('${imagesDir.path}/$fileName');
           await file.writeAsBytes(response.bodyBytes);
 
@@ -204,8 +233,14 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
     });
 
     try {
-      // Download image temporarily for sharing
-      final response = await http.get(Uri.parse(widget.post.imageUrl));
+      // Download image temporarily for sharing using custom HTTP client
+      final imageClient = _createImageHttpClient();
+      http.Response response;
+      try {
+        response = await imageClient.get(Uri.parse(widget.post.imageUrl));
+      } finally {
+        imageClient.close();
+      }
       if (response.statusCode == 200) {
         // Get temporary directory
         Directory tempDir;
@@ -215,8 +250,9 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
           print('❌ Temp directory error: $e');
           throw Exception('خطا در دسترسی به پوشه موقت');
         }
-        
-        final fileName = 'share_${widget.post.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+        final fileName =
+            'share_${widget.post.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
         final file = File('${tempDir.path}/$fileName');
         await file.writeAsBytes(response.bodyBytes);
 
@@ -241,13 +277,16 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
           );
         }
       } else {
-        throw Exception('خطا در آماده‌سازی تصویر برای اشتراک: کد وضعیت ${response.statusCode}');
+        throw Exception(
+          'خطا در آماده‌سازی تصویر برای اشتراک: کد وضعیت ${response.statusCode}',
+        );
       }
     } catch (e) {
       if (mounted) {
         String errorMessage = 'خطا در اشتراک';
         if (e.toString().contains('MissingPluginException')) {
-          errorMessage = 'پلاگین اشتراک‌گذاری یافت نشد. لطفاً برنامه را دوباره نصب کنید.';
+          errorMessage =
+              'پلاگین اشتراک‌گذاری یافت نشد. لطفاً برنامه را دوباره نصب کنید.';
         } else {
           errorMessage = 'خطا در اشتراک: ${e.toString()}';
         }
@@ -316,12 +355,11 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(24),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
                 padding: const EdgeInsets.all(24),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Title
@@ -424,4 +462,3 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
     );
   }
 }
-

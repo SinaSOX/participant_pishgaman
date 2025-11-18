@@ -33,7 +33,7 @@ class _IntroPageState extends State<IntroPage> {
     IntroScreen(
       title: AppStrings.introTitle3,
       subtitle: AppStrings.introSubtitle3,
-      imagePath: 'assets/images/intro3.png',
+      imagePath: 'assets/images/intro3.jpg',
       backgroundColor: const Color(0xFF2C2C2C),
     ),
   ];
@@ -93,7 +93,7 @@ class _IntroPageState extends State<IntroPage> {
         children: [
           // Background image - positioned to cover top 2/3 of screen starting from very top
           Positioned(
-            top: 0,
+            top: 30,
             left: 0,
             right: 0,
             bottom: MediaQuery.of(context).size.height * 0.35,

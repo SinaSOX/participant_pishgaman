@@ -229,6 +229,24 @@ class _ProfilePageState extends State<ProfilePage> {
         // WhatsApp uses phone number format
         final phone = cleanValue.replaceAll(RegExp(r'[^\d+]'), '');
         return 'https://wa.me/$phone';
+      case 'eitaa':
+      case 'ایتا':
+        return 'https://eitaa.com/$username';
+      case 'soroush':
+      case 'سروش':
+        return 'https://splus.ir/$username';
+      case 'bale':
+      case 'بله':
+        return 'https://ble.ir/$username';
+      case 'rubika':
+      case 'روبیکا':
+        return 'https://rubika.ir/$username';
+      case 'gap':
+      case 'گپ':
+        return 'https://gap.im/$username';
+      case 'igap':
+      case 'آی‌گپ':
+        return 'https://igap.net/$username';
       default:
         return null;
     }
@@ -265,12 +283,8 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.white, Colors.grey.shade50],
-            ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
           ),
           child: _buildBody(),
         ),
@@ -425,13 +439,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: _profile!.isPublic
-                      ? Colors.green.withOpacity(0.2)
-                      : Colors.orange.withOpacity(0.2),
+                  color: Colors.white.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: _profile!.isPublic ? Colors.green : Colors.orange,
-                    width: 1,
+                    color: Colors.white,
+                    width: 1.5,
                   ),
                 ),
                 child: Row(
@@ -440,17 +452,15 @@ class _ProfilePageState extends State<ProfilePage> {
                     Icon(
                       _profile!.isPublic ? Icons.public : Icons.lock,
                       size: 16,
-                      color: _profile!.isPublic ? Colors.green : Colors.orange,
+                      color: Colors.white,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       _profile!.isPublic ? 'عمومی' : 'خصوصی',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: _profile!.isPublic
-                            ? Colors.green
-                            : Colors.orange,
+                        color: Colors.white,
                         fontFamily: 'Farhang',
                       ),
                     ),
@@ -554,13 +564,10 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(
+          color: AppColors.primary.withOpacity(0.2),
+          width: 1,
+        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -573,7 +580,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: AppColors.primary, size: 24),
@@ -584,14 +591,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkGray,
+                    color: AppColors.primary,
                     fontFamily: 'Farhang',
                   ),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: AppColors.primary),
           Padding(padding: const EdgeInsets.all(16.0), child: child),
         ],
       ),
@@ -603,9 +610,10 @@ class _ProfilePageState extends State<ProfilePage> {
       _profile!.aboutMe!,
       style: const TextStyle(
         fontSize: 15,
-        color: AppColors.darkGray,
+        color: AppColors.primary,
         fontFamily: 'Farhang',
         height: 1.6,
+        fontWeight: FontWeight.w500,
       ),
     );
   }
@@ -681,9 +689,9 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200, width: 1),
+            border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -711,7 +719,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   description,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.grey.shade700,
+                    color: AppColors.primary.withOpacity(0.8),
                     fontFamily: 'Farhang',
                   ),
                 ),
@@ -763,9 +771,9 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200, width: 1),
+            border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -791,11 +799,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 6),
                 Text(
                   company,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.primary,
                     fontFamily: 'Farhang',
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
@@ -805,7 +813,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   period,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey.shade600,
+                    color: AppColors.primary.withOpacity(0.7),
                     fontFamily: 'Farhang',
                   ),
                 ),
@@ -816,7 +824,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   description,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.grey.shade700,
+                    color: AppColors.primary.withOpacity(0.8),
                     fontFamily: 'Farhang',
                   ),
                 ),
@@ -855,9 +863,9 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200, width: 1),
+            border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -885,7 +893,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   description,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.grey.shade700,
+                    color: AppColors.primary.withOpacity(0.8),
                     fontFamily: 'Farhang',
                   ),
                 ),
@@ -930,9 +938,9 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200, width: 1),
+            border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -960,7 +968,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   issuer,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.grey.shade700,
+                    color: AppColors.primary.withOpacity(0.8),
                     fontFamily: 'Farhang',
                   ),
                 ),
@@ -971,7 +979,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   date,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey.shade600,
+                    color: AppColors.primary.withOpacity(0.7),
                     fontFamily: 'Farhang',
                   ),
                 ),
@@ -1021,6 +1029,36 @@ class _ProfilePageState extends State<ProfilePage> {
           case 'whatsapp':
             icon = FontAwesomeIcons.whatsapp;
             color = const Color(0xFF25D366);
+            break;
+          case 'eitaa':
+          case 'ایتا':
+            icon = Icons.chat_bubble_outline;
+            color = const Color(0xFF00A859);
+            break;
+          case 'soroush':
+          case 'سروش':
+            icon = Icons.chat_bubble_outline;
+            color = const Color(0xFF6C5CE7);
+            break;
+          case 'bale':
+          case 'بله':
+            icon = Icons.chat_bubble_outline;
+            color = const Color(0xFF00BCD4);
+            break;
+          case 'rubika':
+          case 'روبیکا':
+            icon = Icons.chat_bubble_outline;
+            color = const Color(0xFFFF6B6B);
+            break;
+          case 'gap':
+          case 'گپ':
+            icon = Icons.chat_bubble_outline;
+            color = const Color(0xFF4ECDC4);
+            break;
+          case 'igap':
+          case 'آی‌گپ':
+            icon = Icons.chat_bubble_outline;
+            color = const Color(0xFF95A5A6);
             break;
           default:
             icon = Icons.link;
@@ -1102,7 +1140,26 @@ class _ProfilePageState extends State<ProfilePage> {
             icon = Icons.info_outline;
         }
 
-        final isClickable =
+        final valueStr = value.toString().trim();
+        
+        // Check if value is a URL
+        bool isUrl = valueStr.startsWith('http://') || 
+                     valueStr.startsWith('https://') ||
+                     valueStr.startsWith('www.') ||
+                     (valueStr.contains('.') && 
+                      (valueStr.contains('.com') || 
+                       valueStr.contains('.ir') || 
+                       valueStr.contains('.net') || 
+                       valueStr.contains('.org')));
+        
+        // Check if value is an email
+        bool isEmail = valueStr.contains('@') && valueStr.contains('.');
+        
+        // Check if value is a phone number
+        bool isPhone = RegExp(r'^[\d\s\+\-\(\)]+$').hasMatch(valueStr) && 
+                       valueStr.replaceAll(RegExp(r'[^\d]'), '').length >= 7;
+
+        final isClickable = 
             key.toLowerCase() == 'email' ||
             key.toLowerCase() == 'ایمیل' ||
             key.toLowerCase() == 'phone' ||
@@ -1110,26 +1167,36 @@ class _ProfilePageState extends State<ProfilePage> {
             key.toLowerCase() == 'تلفن' ||
             key.toLowerCase() == 'موبایل' ||
             key.toLowerCase() == 'website' ||
-            key.toLowerCase() == 'وب‌سایت';
+            key.toLowerCase() == 'وب‌سایت' ||
+            isUrl ||
+            (key.toLowerCase() == 'address' && isUrl) ||
+            (key.toLowerCase() == 'آدرس' && isUrl);
 
         return GestureDetector(
           onTap: isClickable
               ? () {
-                  final valueStr = value.toString().trim();
                   if (key.toLowerCase() == 'email' ||
-                      key.toLowerCase() == 'ایمیل') {
+                      key.toLowerCase() == 'ایمیل' ||
+                      isEmail) {
                     _launchEmail(valueStr);
                   } else if (key.toLowerCase() == 'phone' ||
                       key.toLowerCase() == 'mobile' ||
                       key.toLowerCase() == 'تلفن' ||
-                      key.toLowerCase() == 'موبایل') {
+                      key.toLowerCase() == 'موبایل' ||
+                      isPhone) {
                     _launchPhone(valueStr);
                   } else if (key.toLowerCase() == 'website' ||
-                      key.toLowerCase() == 'وب‌سایت') {
-                    String url = valueStr;
+                      key.toLowerCase() == 'وب‌سایت' ||
+                      isUrl ||
+                      (key.toLowerCase() == 'address' && isUrl) ||
+                      (key.toLowerCase() == 'آدرس' && isUrl)) {
+                    String url = valueStr.trim();
+                    // Preserve the original protocol (http:// or https://)
+                    // Only add protocol if none is provided
                     if (!url.startsWith('http://') &&
                         !url.startsWith('https://')) {
-                      url = 'https://$url';
+                      // Default to http:// instead of https:// to avoid automatic redirects
+                      url = 'http://$url';
                     }
                     _launchUrl(url);
                   }
@@ -1139,9 +1206,9 @@ class _ProfilePageState extends State<ProfilePage> {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: Colors.white.withOpacity(0.6),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade200, width: 1),
+              border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 1),
             ),
             child: Row(
               children: [
@@ -1155,7 +1222,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         key,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color: AppColors.primary.withOpacity(0.7),
                           fontFamily: 'Farhang',
                         ),
                       ),
@@ -1164,10 +1231,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         value.toString(),
                         style: TextStyle(
                           fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: isClickable
-                              ? AppColors.primary
-                              : AppColors.darkGray,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
                           fontFamily: 'Farhang',
                           decoration: isClickable
                               ? TextDecoration.underline

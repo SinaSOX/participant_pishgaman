@@ -6,12 +6,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:participant_pishgaman/pages/login/login_entry_page.dart';
 import 'package:participant_pishgaman/pages/intro/intro_page.dart';
 import 'package:participant_pishgaman/pages/profile/profile_page.dart';
+import 'package:participant_pishgaman/pages/networking/networking_page.dart';
 import 'package:participant_pishgaman/pages/course_path/course_path_page.dart';
 import 'package:participant_pishgaman/pages/gallery/gallery_page.dart';
 import 'package:participant_pishgaman/pages/settings/settings_page.dart';
 import 'package:participant_pishgaman/pages/id_card/id_card_page.dart';
+import 'package:participant_pishgaman/pages/support/ai_support_page.dart';
+import 'package:participant_pishgaman/pages/other_features/other_features_webview_page.dart';
+import 'package:participant_pishgaman/pages/feedback/feedback_page.dart';
+import 'package:participant_pishgaman/pages/survey/survey_list_page.dart';
+import 'package:participant_pishgaman/pages/domains/domains_list_page.dart';
 import 'package:participant_pishgaman/services/onboarding_service.dart';
 import 'package:participant_pishgaman/services/auth_service.dart';
+import 'package:participant_pishgaman/services/push_notification_service.dart';
 import 'package:participant_pishgaman/constants/app_colors.dart';
 import 'package:participant_pishgaman/components/custom_bottom_nav.dart';
 
@@ -32,6 +39,7 @@ void main() async {
       try {
         await OnboardingService().init();
         await AuthService().init();
+        await PushNotificationService().init();
       } catch (e) {
         // Log error but continue app initialization
         debugPrint('Error initializing services: $e');
@@ -61,7 +69,7 @@ class MyApp extends StatelessWidget {
     const Color darkGray = AppColors.darkGray;
 
     return MaterialApp(
-      title: 'Participant Pishgaman',
+      title: 'پیشگامان رهایی',
       debugShowCheckedModeBanner: false,
       locale: const Locale('fa', 'IR'),
       supportedLocales: const [
@@ -237,10 +245,10 @@ class _AppInitializerState extends State<AppInitializer> {
         debugPrint('✅ User is logged in. Skipping intro and login.');
         debugPrint('📱 Phone: $phone');
         debugPrint('👤 Role: $role');
-        
+
         if (mounted) {
           setState(() {
-            _initialRoute = MyHomePage(title: 'شرکت کننده پیشگامان');
+            _initialRoute = MyHomePage(title: 'پیشگامان رهایی');
             _isLoading = false;
           });
         }
@@ -279,11 +287,7 @@ class _AppInitializerState extends State<AppInitializer> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       // Show loading screen while checking auth
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return _initialRoute ?? const IntroPage();
@@ -367,8 +371,8 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0: // پروفایل
         targetPage = const ProfilePage();
         break;
-      case 1: // گالری
-        targetPage = const GalleryPage();
+      case 1: // شبکه سازی
+        targetPage = const NetworkingPage();
         break;
       case 3: // مسیر دوره
         targetPage = const CoursePathPage();
@@ -415,9 +419,12 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-
   // صفحه خانه
-  Widget _buildHomePage(BuildContext context, Color primaryTurquoise, Color darkGray) {
+  Widget _buildHomePage(
+    BuildContext context,
+    Color primaryTurquoise,
+    Color darkGray,
+  ) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -456,13 +463,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // گرید دسترسی سریع
-  Widget _buildQuickAccessGrid(BuildContext context, Color primaryTurquoise, Color darkGray) {
+  Widget _buildQuickAccessGrid(
+    BuildContext context,
+    Color primaryTurquoise,
+    Color darkGray,
+  ) {
     final quickAccessItems = [
       {
         'icon': FontAwesomeIcons.clipboardCheck,
         'title': 'نظر سنجی',
         'color': AppColors.primary,
-        'route': null,
+        'route': const SurveyListPage(),
       },
       {
         'icon': FontAwesomeIcons.idCard,
@@ -472,9 +483,9 @@ class _MyHomePageState extends State<MyHomePage> {
       },
       {
         'icon': FontAwesomeIcons.sitemap,
-        'title': 'معرفی شاخه ها',
+        'title': 'معرفی رشته ها',
         'color': AppColors.primary,
-        'route': null,
+        'route': const DomainsListPage(),
       },
       {
         'icon': FontAwesomeIcons.infoCircle,
@@ -494,73 +505,135 @@ class _MyHomePageState extends State<MyHomePage> {
         'color': AppColors.primary,
         'route': const GalleryPage(),
       },
+      {
+        'icon': FontAwesomeIcons.comments,
+        'title': 'پشتیبانی',
+        'color': AppColors.primary,
+        'route': const AiSupportPage(),
+      },
+      {
+        'icon': FontAwesomeIcons.commentDots,
+        'title': 'پیشنهاد و انتقاد',
+        'color': AppColors.primary,
+        'route': const FeedbackPage(),
+      },
+      {
+        'icon': FontAwesomeIcons.ellipsis,
+        'title': 'سایر امکانات',
+        'color': AppColors.primary,
+        'route': const OtherFeaturesWebViewPage(),
+      },
     ];
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: 1.2,
-      ),
-      itemCount: quickAccessItems.length,
-      itemBuilder: (context, index) {
-        final item = quickAccessItems[index];
-        return Card(
+    const bannerAssetPath = 'assets/images/banner2.jpg';
+    const bannerInsertIndex = 3; // تغییر به 3 تا قبل از بنر یک سطر کامل (3 آیتم) داشته باشیم
+    
+    // تقسیم آیتم‌ها به قبل و بعد از بنر
+    final beforeBannerItems = quickAccessItems.sublist(0, bannerInsertIndex);
+    final afterBannerItems = quickAccessItems.sublist(bannerInsertIndex);
+    
+    // محاسبه تعداد آیتم‌های placeholder برای کامل کردن سطرها
+    final beforeBannerRemainder = beforeBannerItems.length % 3;
+    final afterBannerRemainder = afterBannerItems.length % 3;
+    final beforeBannerPadding = beforeBannerRemainder == 0 ? 0 : 3 - beforeBannerRemainder;
+    final afterBannerPadding = afterBannerRemainder == 0 ? 0 : 3 - afterBannerRemainder;
+
+    Widget buildGridSection(List<Map<String, Object?>> items, {int paddingCount = 0}) {
+      final totalItems = items.length + paddingCount;
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.0,
+        ),
+        itemCount: totalItems,
+        itemBuilder: (context, index) {
+          // اگر index از تعداد آیتم‌های واقعی بیشتر باشد، یک placeholder خالی نمایش بده
+          if (index >= items.length) {
+            return const SizedBox.shrink(); // کارت خالی برای spacing
+          }
+          
+          final item = items[index];
+          return Card(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            color: AppColors.primary.withOpacity(0.12),
+            child: InkWell(
+              onTap: () {
+                final route = item['route'] as Widget?;
+                if (route != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => route),
+                  );
+                }
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: AppColors.primary.withOpacity(0.12),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      item['icon'] as IconData,
+                      color: AppColors.primary,
+                      size: 32,
+                    ),
+                    const SizedBox(height: 8),
+                    Flexible(
+                      child: Text(
+                        item['title'] as String,
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        buildGridSection(beforeBannerItems, paddingCount: beforeBannerPadding),
+        const SizedBox(height: 12),
+        Card(
           elevation: 1,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          color: Colors.white,
-          child: InkWell(
-            onTap: () {
-              final route = item['route'] as Widget?;
-              if (route != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => route),
-                );
-              }
-            },
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Colors.white,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: (item['color'] as Color).withOpacity(0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      item['icon'] as IconData,
-                      color: item['color'] as Color,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    item['title'] as String,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: darkGray,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+          clipBehavior: Clip.antiAlias,
+          child: AspectRatio(
+            aspectRatio: 1500 / 269,
+            child: Image.asset(
+              bannerAssetPath,
+              fit: BoxFit.cover,
             ),
           ),
-        );
-      },
+        ),
+        const SizedBox(height: 12),
+        buildGridSection(afterBannerItems, paddingCount: afterBannerPadding),
+      ],
     );
   }
 
@@ -638,5 +711,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
 }

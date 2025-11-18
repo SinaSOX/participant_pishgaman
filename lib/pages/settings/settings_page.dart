@@ -3,7 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../constants/app_colors.dart';
 import '../../services/auth_service.dart';
 import '../../components/snak_component.dart';
-import '../login/login_entry_page.dart';
+import '../intro/intro_page.dart';
+import '../support/ai_support_page.dart';
+import '../feedback/feedback_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -13,6 +15,18 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  void _openFeedback() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const FeedbackPage()));
+  }
+
+  void _openAiSupport() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const AiSupportPage()));
+  }
+
   Future<void> _handleLogout() async {
     // نمایش دیالوگ تایید
     final shouldLogout = await showDialog<bool>(
@@ -70,9 +84,9 @@ class _SettingsPageState extends State<SettingsPage> {
       final success = await authService.logout();
 
       if (success && mounted) {
-        // هدایت به صفحه ورود
+        // هدایت به صفحات اینترو
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginEntryPage()),
+          MaterialPageRoute(builder: (context) => const IntroPage()),
           (route) => false,
         );
 
@@ -122,7 +136,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'شرکت کننده پیشگامان',
+                    'پیشگامان رهایی',
                     style: TextStyle(
                       fontFamily: 'Farhang',
                       fontWeight: FontWeight.bold,
@@ -131,11 +145,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'اپلیکیشن شرکت کننده پیشگامان، پلتفرمی جامع برای یادگیری و آموزش است. ما با ارائه محتوای آموزشی با کیفیت و تجربه کاربری عالی، به شما کمک می‌کنیم تا به بهترین شکل ممکن یاد بگیرید.',
-                    style: TextStyle(
-                      fontFamily: 'Farhang',
-                      height: 1.8,
-                    ),
+                    'اپلیکیشن پیشگامان رهایی، پلتفرمی جامع برای یادگیری و آموزش است. ما با ارائه محتوای آموزشی با کیفیت و تجربه کاربری عالی، به شما کمک می‌کنیم تا به بهترین شکل ممکن یاد بگیرید.',
+                    style: TextStyle(fontFamily: 'Farhang', height: 1.8),
                   ),
                   const SizedBox(height: 16),
                   const Text(
@@ -329,10 +340,7 @@ class _SettingsPageState extends State<SettingsPage> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         text,
-        style: const TextStyle(
-          fontFamily: 'Farhang',
-          height: 1.6,
-        ),
+        style: const TextStyle(fontFamily: 'Farhang', height: 1.6),
       ),
     );
   }
@@ -353,10 +361,7 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 8),
         Text(
           content,
-          style: const TextStyle(
-            fontFamily: 'Farhang',
-            height: 1.8,
-          ),
+          style: const TextStyle(fontFamily: 'Farhang', height: 1.8),
         ),
       ],
     );
@@ -397,39 +402,48 @@ class _SettingsPageState extends State<SettingsPage> {
     Color? textColor,
     bool isDanger = false,
   }) {
+    final itemColor = isDanger ? Colors.red : (iconColor ?? AppColors.primary);
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      elevation: 1,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: (iconColor ?? AppColors.primary).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            color: iconColor ?? AppColors.primary,
-            size: 24,
-          ),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontFamily: 'Farhang',
-            fontWeight: FontWeight.w600,
-            color: textColor ?? AppColors.darkGray,
-            fontSize: 16,
-          ),
-        ),
-        trailing: Icon(
-          Icons.chevron_left,
-          color: AppColors.grey,
-        ),
+      color: itemColor.withOpacity(0.12),
+      child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: itemColor.withOpacity(0.12),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: itemColor,
+                size: 32,
+              ),
+              const SizedBox(height: 8),
+              Flexible(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontFamily: 'Farhang',
+                    color: itemColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -459,107 +473,137 @@ class _SettingsPageState extends State<SettingsPage> {
               colors: [Colors.white, Colors.grey.shade50],
             ),
           ),
-          child: ListView(
-            children: [
-              const SizedBox(height: 16),
-              
-              // بخش اطلاعات و راهنما
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Text(
-                  'اطلاعات و راهنما',
-                  style: TextStyle(
-                    fontFamily: 'Farhang',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // بخش اطلاعات و راهنما
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    'اطلاعات و راهنما',
+                    style: TextStyle(
+                      fontFamily: 'Farhang',
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.grey,
+                    ),
                   ),
                 ),
-              ),
-              
-              _buildSettingsItem(
-                icon: FontAwesomeIcons.circleInfo,
-                title: 'درباره ما',
-                onTap: _showAboutUs,
-                iconColor: AppColors.primary,
-              ),
-              
-              _buildSettingsItem(
-                icon: FontAwesomeIcons.book,
-                title: 'راهنما',
-                onTap: _showHelpGuide,
-                iconColor: AppColors.primary,
-              ),
-              
-              _buildSettingsItem(
-                icon: FontAwesomeIcons.circleQuestion,
-                title: 'سوالات متداول',
-                onTap: _showFAQ,
-                iconColor: AppColors.primary,
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // بخش حساب کاربری
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Text(
-                  'حساب کاربری',
-                  style: TextStyle(
-                    fontFamily: 'Farhang',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey,
+
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.0,
+                  children: [
+                    _buildSettingsItem(
+                      icon: FontAwesomeIcons.comments,
+                      title: 'پشتیبانی',
+                      onTap: _openAiSupport,
+                      iconColor: AppColors.primary,
+                    ),
+                    _buildSettingsItem(
+                      icon: FontAwesomeIcons.penToSquare,
+                      title: 'پیشنهاد و انتقاد',
+                      onTap: _openFeedback,
+                      iconColor: AppColors.primary,
+                    ),
+                    _buildSettingsItem(
+                      icon: FontAwesomeIcons.circleInfo,
+                      title: 'درباره ما',
+                      onTap: _showAboutUs,
+                      iconColor: AppColors.primary,
+                    ),
+                    _buildSettingsItem(
+                      icon: FontAwesomeIcons.book,
+                      title: 'راهنما',
+                      onTap: _showHelpGuide,
+                      iconColor: AppColors.primary,
+                    ),
+                    _buildSettingsItem(
+                      icon: FontAwesomeIcons.circleQuestion,
+                      title: 'سوالات متداول',
+                      onTap: _showFAQ,
+                      iconColor: AppColors.primary,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // بخش حساب کاربری
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    'حساب کاربری',
+                    style: TextStyle(
+                      fontFamily: 'Farhang',
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.grey,
+                    ),
                   ),
                 ),
-              ),
-              
-              _buildSettingsItem(
-                icon: FontAwesomeIcons.rightFromBracket,
-                title: 'خروج از حساب کاربری',
-                onTap: _handleLogout,
-                iconColor: Colors.red,
-                textColor: Colors.red,
-                isDanger: true,
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // اطلاعات نسخه
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      Text(
-                        'نسخه 1.0.0',
-                        style: TextStyle(
-                          fontFamily: 'Farhang',
-                          fontSize: 12,
-                          color: AppColors.grey,
+
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.0,
+                  children: [
+                    _buildSettingsItem(
+                      icon: FontAwesomeIcons.rightFromBracket,
+                      title: 'خروج از حساب',
+                      onTap: _handleLogout,
+                      iconColor: Colors.red,
+                      textColor: Colors.red,
+                      isDanger: true,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 32),
+
+                // اطلاعات نسخه
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Text(
+                          'نسخه 1.0.0',
+                          style: TextStyle(
+                            fontFamily: 'Farhang',
+                            fontSize: 12,
+                            color: AppColors.grey,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'شرکت کننده پیشگامان',
-                        style: TextStyle(
-                          fontFamily: 'Farhang',
-                          fontSize: 12,
-                          color: AppColors.grey,
+                        const SizedBox(height: 4),
+                        Text(
+                          'پیشگامان رهایی',
+                          style: TextStyle(
+                            fontFamily: 'Farhang',
+                            fontSize: 12,
+                            color: AppColors.grey,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              
-              const SizedBox(height: 16),
-            ],
+
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
-
-

@@ -1,6 +1,6 @@
 class AppConstants {
   // App Information
-  static const String appName = 'Participant Pishgaman';
+  static const String appName = 'پیشگامان رهایی';
   static const String appVersion = '1.0.0';
 
   // Storage Keys

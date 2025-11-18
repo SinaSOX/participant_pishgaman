@@ -26,4 +26,9 @@ class OnboardingService {
   bool isIntroCompleted() {
     return _storageService.getBool(AppConstants.introCompletedKey) ?? false;
   }
+
+  // Reset intro completion status
+  Future<bool> resetIntro() async {
+    return await _storageService.remove(AppConstants.introCompletedKey);
+  }
 }

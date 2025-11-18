@@ -175,17 +175,20 @@ class _IdCardPageState extends State<IdCardPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SizedBox(height: 16),
-                    // Header with icon
+                    // Header with logo
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.person,
-                        size: 32,
-                        color: Colors.white,
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),

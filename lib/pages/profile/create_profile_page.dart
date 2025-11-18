@@ -17,34 +17,42 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
 
   // Form controllers
   final TextEditingController _aboutMeController = TextEditingController();
-  
+
   // Social networks
   final TextEditingController _instagramController = TextEditingController();
   final TextEditingController _linkedinController = TextEditingController();
   final TextEditingController _telegramController = TextEditingController();
   final TextEditingController _twitterController = TextEditingController();
-  
+
+  // Iranian messengers and social networks
+  final TextEditingController _eitaaController = TextEditingController();
+  final TextEditingController _soroushController = TextEditingController();
+  final TextEditingController _baleController = TextEditingController();
+  final TextEditingController _rubikaController = TextEditingController();
+  final TextEditingController _gapController = TextEditingController();
+  final TextEditingController _igapController = TextEditingController();
+
   // Contact info
   final TextEditingController _websiteController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  
+
   // Skills
   final TextEditingController _skillController = TextEditingController();
-  List<String> _skills = [];
-  
+  final List<String> _skills = [];
+
   // Educational credentials
-  List<Map<String, String>> _educationalCredentials = [];
-  
+  final List<Map<String, String>> _educationalCredentials = [];
+
   // Work experience
-  List<Map<String, String>> _workExperience = [];
-  
+  final List<Map<String, String>> _workExperience = [];
+
   // Completed projects
-  List<Map<String, String>> _completedProjects = [];
-  
+  final List<Map<String, String>> _completedProjects = [];
+
   // Certifications
-  List<Map<String, String>> _certifications = [];
-  
+  final List<Map<String, String>> _certifications = [];
+
   bool _isPublic = true;
 
   @override
@@ -54,6 +62,12 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
     _linkedinController.dispose();
     _telegramController.dispose();
     _twitterController.dispose();
+    _eitaaController.dispose();
+    _soroushController.dispose();
+    _baleController.dispose();
+    _rubikaController.dispose();
+    _gapController.dispose();
+    _igapController.dispose();
     _websiteController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
@@ -73,7 +87,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
     try {
       final authService = AuthService();
       final userIdStr = authService.getUserId();
-      
+
       if (userIdStr == null) {
         if (mounted) {
           SnackComponent(
@@ -124,6 +138,25 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
       }
       if (_twitterController.text.isNotEmpty) {
         socialNetworks['twitter'] = _twitterController.text.trim();
+      }
+      // Iranian messengers and social networks
+      if (_eitaaController.text.isNotEmpty) {
+        socialNetworks['eitaa'] = _eitaaController.text.trim();
+      }
+      if (_soroushController.text.isNotEmpty) {
+        socialNetworks['soroush'] = _soroushController.text.trim();
+      }
+      if (_baleController.text.isNotEmpty) {
+        socialNetworks['bale'] = _baleController.text.trim();
+      }
+      if (_rubikaController.text.isNotEmpty) {
+        socialNetworks['rubika'] = _rubikaController.text.trim();
+      }
+      if (_gapController.text.isNotEmpty) {
+        socialNetworks['gap'] = _gapController.text.trim();
+      }
+      if (_igapController.text.isNotEmpty) {
+        socialNetworks['igap'] = _igapController.text.trim();
       }
       if (socialNetworks.isNotEmpty) {
         profileData['social_networks'] = socialNetworks;
@@ -374,13 +407,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
           elevation: 0,
         ),
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.white, Colors.grey.shade50],
-            ),
-          ),
+          decoration: const BoxDecoration(color: Colors.white),
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -392,6 +419,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                   _buildSection(
                     title: 'درباره من',
                     icon: Icons.info_outline,
+                    subtitle: '(اختیاری)',
                     child: TextFormField(
                       controller: _aboutMeController,
                       maxLines: 5,
@@ -408,6 +436,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                   _buildSection(
                     title: 'شبکه‌های اجتماعی',
                     icon: Icons.share_outlined,
+                    subtitle: '(اختیاری)',
                     child: Column(
                       children: [
                         TextFormField(
@@ -449,6 +478,78 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                             prefixIcon: Icon(Icons.alternate_email),
                           ),
                         ),
+                        const SizedBox(height: 16),
+                        const Divider(),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'پیام‌رسان‌ها و شبکه‌های اجتماعی ایرانی',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                            fontFamily: 'Farhang',
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _eitaaController,
+                          decoration: const InputDecoration(
+                            labelText: 'ایتا',
+                            hintText: '@username',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.chat_bubble_outline),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _soroushController,
+                          decoration: const InputDecoration(
+                            labelText: 'سروش',
+                            hintText: '@username',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.chat_bubble_outline),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _baleController,
+                          decoration: const InputDecoration(
+                            labelText: 'بله',
+                            hintText: '@username',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.chat_bubble_outline),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _rubikaController,
+                          decoration: const InputDecoration(
+                            labelText: 'روبیکا',
+                            hintText: '@username',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.chat_bubble_outline),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _gapController,
+                          decoration: const InputDecoration(
+                            labelText: 'گپ',
+                            hintText: '@username',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.chat_bubble_outline),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _igapController,
+                          decoration: const InputDecoration(
+                            labelText: 'آی‌گپ',
+                            hintText: '@username',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.chat_bubble_outline),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -458,6 +559,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                   _buildSection(
                     title: 'اطلاعات تماس',
                     icon: Icons.contact_phone_outlined,
+                    subtitle: '(اختیاری)',
                     child: Column(
                       children: [
                         TextFormField(
@@ -500,6 +602,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                   _buildSection(
                     title: 'مهارت‌ها',
                     icon: Icons.star_outline,
+                    subtitle: '(اختیاری)',
                     child: Column(
                       children: [
                         Row(
@@ -532,7 +635,18 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                               final index = entry.key;
                               final skill = entry.value;
                               return Chip(
-                                label: Text(skill),
+                                label: Text(
+                                  skill,
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontFamily: 'Farhang',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                backgroundColor: AppColors.primary.withOpacity(
+                                  0.2,
+                                ),
+                                deleteIconColor: AppColors.primary,
                                 onDeleted: () => _removeSkill(index),
                                 deleteIcon: const Icon(Icons.close, size: 18),
                               );
@@ -548,11 +662,13 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                   _buildListSection(
                     title: 'مدارک تحصیلی',
                     icon: Icons.school_outlined,
+                    subtitle: '(اختیاری)',
                     items: _educationalCredentials,
                     onAdd: _addEducationalCredential,
                     onEdit: _editEducationalCredential,
                     onRemove: _removeEducationalCredential,
-                    itemBuilder: (item) => '${item['degree'] ?? ''} - ${item['field'] ?? ''}',
+                    itemBuilder: (item) =>
+                        '${item['degree'] ?? ''} - ${item['field'] ?? ''}',
                   ),
                   const SizedBox(height: 16),
 
@@ -560,11 +676,13 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                   _buildListSection(
                     title: 'سوابق کاری',
                     icon: Icons.work_outline,
+                    subtitle: '(اختیاری)',
                     items: _workExperience,
                     onAdd: _addWorkExperience,
                     onEdit: _editWorkExperience,
                     onRemove: _removeWorkExperience,
-                    itemBuilder: (item) => '${item['position'] ?? ''} در ${item['company'] ?? ''}',
+                    itemBuilder: (item) =>
+                        '${item['position'] ?? ''} در ${item['company'] ?? ''}',
                   ),
                   const SizedBox(height: 16),
 
@@ -572,6 +690,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                   _buildListSection(
                     title: 'پروژه‌های انجام شده',
                     icon: Icons.folder_outlined,
+                    subtitle: '(اختیاری)',
                     items: _completedProjects,
                     onAdd: _addCompletedProject,
                     onEdit: _editCompletedProject,
@@ -584,6 +703,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                   _buildListSection(
                     title: 'گواهینامه‌ها',
                     icon: Icons.verified_outlined,
+                    subtitle: '(اختیاری)',
                     items: _certifications,
                     onAdd: _addCertification,
                     onEdit: _editCertification,
@@ -635,7 +755,9 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : const Text(
@@ -662,52 +784,67 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
     required String title,
     required IconData icon,
     required Widget child,
+    String? subtitle,
   }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: AppColors.primary.withOpacity(0.2), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(icon, color: AppColors.primary, size: 24),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkGray,
-                    fontFamily: 'Farhang',
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(icon, color: AppColors.primary, size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                              fontFamily: 'Farhang',
+                            ),
+                          ),
+                          if (subtitle != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              subtitle,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.primary.withOpacity(0.7),
+                                fontFamily: 'Farhang',
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: child,
-          ),
+          const Divider(height: 1, color: AppColors.primary),
+          Padding(padding: const EdgeInsets.all(16.0), child: child),
         ],
       ),
     );
@@ -721,18 +858,13 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
     required Function(int) onEdit,
     required Function(int) onRemove,
     required String Function(Map<String, String>) itemBuilder,
+    String? subtitle,
   }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: AppColors.primary.withOpacity(0.2), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -744,21 +876,37 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: AppColors.primary, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkGray,
-                      fontFamily: 'Farhang',
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                          fontFamily: 'Farhang',
+                        ),
+                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.primary.withOpacity(0.7),
+                            fontFamily: 'Farhang',
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 IconButton(
@@ -769,7 +917,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
               ],
             ),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: AppColors.primary),
           if (items.isEmpty)
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -777,7 +925,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                 child: Text(
                   'موردی اضافه نشده است',
                   style: TextStyle(
-                    color: Colors.grey.shade600,
+                    color: AppColors.primary.withOpacity(0.7),
                     fontFamily: 'Farhang',
                   ),
                 ),
@@ -787,25 +935,40 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
             ...items.asMap().entries.map((entry) {
               final index = entry.key;
               final item = entry.value;
-              return ListTile(
-                title: Text(
-                  itemBuilder(item),
-                  style: const TextStyle(fontFamily: 'Farhang'),
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.primary.withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, size: 20),
+                child: ListTile(
+                  title: Text(
+                    itemBuilder(item),
+                    style: const TextStyle(
+                      fontFamily: 'Farhang',
                       color: AppColors.primary,
-                      onPressed: () => onEdit(index),
+                      fontWeight: FontWeight.w500,
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, size: 20),
-                      color: Colors.red,
-                      onPressed: () => onRemove(index),
-                    ),
-                  ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, size: 20),
+                        color: AppColors.primary,
+                        onPressed: () => onEdit(index),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, size: 20),
+                        color: Colors.red,
+                        onPressed: () => onRemove(index),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }),
@@ -820,16 +983,15 @@ class _EducationalCredentialDialog extends StatefulWidget {
   final Map<String, String>? credential;
   final Function(Map<String, String>) onSave;
 
-  const _EducationalCredentialDialog({
-    this.credential,
-    required this.onSave,
-  });
+  const _EducationalCredentialDialog({this.credential, required this.onSave});
 
   @override
-  State<_EducationalCredentialDialog> createState() => _EducationalCredentialDialogState();
+  State<_EducationalCredentialDialog> createState() =>
+      _EducationalCredentialDialogState();
 }
 
-class _EducationalCredentialDialogState extends State<_EducationalCredentialDialog> {
+class _EducationalCredentialDialogState
+    extends State<_EducationalCredentialDialog> {
   final _formKey = GlobalKey<FormState>();
   final _degreeController = TextEditingController();
   final _fieldController = TextEditingController();
@@ -873,7 +1035,10 @@ class _EducationalCredentialDialogState extends State<_EducationalCredentialDial
     return Directionality(
       textDirection: TextDirection.rtl,
       child: AlertDialog(
-        title: const Text('مدرک تحصیلی', style: TextStyle(fontFamily: 'Farhang')),
+        title: const Text(
+          'مدرک تحصیلی',
+          style: TextStyle(fontFamily: 'Farhang'),
+        ),
         content: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -922,7 +1087,10 @@ class _EducationalCredentialDialogState extends State<_EducationalCredentialDial
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('انصراف', style: TextStyle(fontFamily: 'Farhang')),
+            child: const Text(
+              'انصراف',
+              style: TextStyle(fontFamily: 'Farhang'),
+            ),
           ),
           ElevatedButton(
             onPressed: _save,
@@ -943,10 +1111,7 @@ class _WorkExperienceDialog extends StatefulWidget {
   final Map<String, String>? experience;
   final Function(Map<String, String>) onSave;
 
-  const _WorkExperienceDialog({
-    this.experience,
-    required this.onSave,
-  });
+  const _WorkExperienceDialog({this.experience, required this.onSave});
 
   @override
   State<_WorkExperienceDialog> createState() => _WorkExperienceDialogState();
@@ -1000,7 +1165,10 @@ class _WorkExperienceDialogState extends State<_WorkExperienceDialog> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: AlertDialog(
-        title: const Text('سابقه کاری', style: TextStyle(fontFamily: 'Farhang')),
+        title: const Text(
+          'سابقه کاری',
+          style: TextStyle(fontFamily: 'Farhang'),
+        ),
         content: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -1059,7 +1227,10 @@ class _WorkExperienceDialogState extends State<_WorkExperienceDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('انصراف', style: TextStyle(fontFamily: 'Farhang')),
+            child: const Text(
+              'انصراف',
+              style: TextStyle(fontFamily: 'Farhang'),
+            ),
           ),
           ElevatedButton(
             onPressed: _save,
@@ -1080,13 +1251,11 @@ class _CompletedProjectDialog extends StatefulWidget {
   final Map<String, String>? project;
   final Function(Map<String, String>) onSave;
 
-  const _CompletedProjectDialog({
-    this.project,
-    required this.onSave,
-  });
+  const _CompletedProjectDialog({this.project, required this.onSave});
 
   @override
-  State<_CompletedProjectDialog> createState() => _CompletedProjectDialogState();
+  State<_CompletedProjectDialog> createState() =>
+      _CompletedProjectDialogState();
 }
 
 class _CompletedProjectDialogState extends State<_CompletedProjectDialog> {
@@ -1133,7 +1302,10 @@ class _CompletedProjectDialogState extends State<_CompletedProjectDialog> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: AlertDialog(
-        title: const Text('پروژه انجام شده', style: TextStyle(fontFamily: 'Farhang')),
+        title: const Text(
+          'پروژه انجام شده',
+          style: TextStyle(fontFamily: 'Farhang'),
+        ),
         content: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -1183,7 +1355,10 @@ class _CompletedProjectDialogState extends State<_CompletedProjectDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('انصراف', style: TextStyle(fontFamily: 'Farhang')),
+            child: const Text(
+              'انصراف',
+              style: TextStyle(fontFamily: 'Farhang'),
+            ),
           ),
           ElevatedButton(
             onPressed: _save,
@@ -1204,10 +1379,7 @@ class _CertificationDialog extends StatefulWidget {
   final Map<String, String>? certification;
   final Function(Map<String, String>) onSave;
 
-  const _CertificationDialog({
-    this.certification,
-    required this.onSave,
-  });
+  const _CertificationDialog({this.certification, required this.onSave});
 
   @override
   State<_CertificationDialog> createState() => _CertificationDialogState();
@@ -1306,7 +1478,10 @@ class _CertificationDialogState extends State<_CertificationDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('انصراف', style: TextStyle(fontFamily: 'Farhang')),
+            child: const Text(
+              'انصراف',
+              style: TextStyle(fontFamily: 'Farhang'),
+            ),
           ),
           ElevatedButton(
             onPressed: _save,
@@ -1321,4 +1496,3 @@ class _CertificationDialogState extends State<_CertificationDialog> {
     );
   }
 }
-

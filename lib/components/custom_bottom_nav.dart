@@ -47,8 +47,8 @@ class CustomBottomNav extends StatelessWidget {
                   ),
                   Expanded(
                     child: _buildNavItem(
-                      icon: FontAwesomeIcons.images,
-                      label: 'گالری',
+                      icon: FontAwesomeIcons.users,
+                      label: 'شبکه سازی',
                       index: 1,
                       isCenter: false,
                     ),

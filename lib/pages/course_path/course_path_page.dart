@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
 import 'models/course_step.dart';
@@ -16,13 +18,20 @@ class _CoursePathPageState extends State<CoursePathPage>
   late AnimationController _animationController;
   late Animation<double> _pulseAnimation;
   late ScrollController _scrollController;
-
+  Timer? _statusTimer;
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _initializeSteps();
     _initializeAnimations();
+    _startStatusTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant CoursePathPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _initializeSteps(shouldSetState: true);
   }
 
   void _initializeAnimations() {
@@ -32,10 +41,7 @@ class _CoursePathPageState extends State<CoursePathPage>
     );
 
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
     // Start animation after the first frame to ensure widget tree is ready
@@ -52,6 +58,7 @@ class _CoursePathPageState extends State<CoursePathPage>
   void dispose() {
     _animationController.dispose();
     _scrollController.dispose();
+    _statusTimer?.cancel();
     super.dispose();
   }
 
@@ -65,194 +72,249 @@ class _CoursePathPageState extends State<CoursePathPage>
     }
   }
 
-  void _initializeSteps() {
-    courseSteps = [
-      CourseStep(
+  void _initializeSteps({bool shouldSetState = false}) {
+    if (shouldSetState) {
+      setState(() {
+        courseSteps = _buildCourseSteps();
+      });
+    } else {
+      courseSteps = _buildCourseSteps();
+    }
+  }
+
+  void _startStatusTimer() {
+    _statusTimer?.cancel();
+    _statusTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (!mounted) return;
+      _initializeSteps(shouldSetState: true);
+    });
+  }
+
+  List<CourseStep> _buildCourseSteps() {
+    final now = DateTime.now();
+    final events = _scheduleEvents();
+
+    return events
+        .map(
+          (event) => CourseStep(
+            id: event.id,
+            title: event.title,
+            subtitle: event.subtitle,
+            icon: event.icon,
+            status: _resolveStatus(
+              now: now,
+              start: event.start,
+              end: event.end,
+              isFirstEvent: event.id == events.first.id,
+            ),
+            time: _formatTimeRange(event.start, event.end),
+            color: event.color,
+          ),
+        )
+        .toList();
+  }
+
+  List<_ScheduleEvent> _scheduleEvents() {
+    const wednesdayLabel = 'چهارشنبه 28 آبان 1404';
+    const thursdayLabel = 'پنجشنبه 29 آبان 1404';
+    const fridayLabel = 'جمعه 30 آبان 1404';
+
+    return [
+      _ScheduleEvent(
         id: 0,
-        title: 'شروع',
+        title: 'آغاز دوره و خوشامدگویی',
+        subtitle: wednesdayLabel,
+        start: DateTime(2025, 11, 19, 14, 0),
+        end: DateTime(2025, 11, 19, 15, 0),
         icon: Icons.flag,
-        status: StepStatus.completed,
         color: Colors.green,
-        time: '08:00',
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 1,
-        title: 'مقدمه',
-        subtitle: 'آشنایی با دوره',
-        icon: Icons.book,
-        status: StepStatus.completed,
-        time: '08:15',
+        title: 'پذیرش نشست و صرف شام',
+        subtitle: wednesdayLabel,
+        start: DateTime(2025, 11, 19, 15, 0),
+        end: DateTime(2025, 11, 19, 18, 0),
+        icon: Icons.handshake,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 2,
-        title: 'درس اول',
-        subtitle: 'مبانی اولیه',
-        icon: Icons.school,
-        status: StepStatus.completed,
-        time: '09:00',
+        title: 'مراسم افتتاحیه سومین نشست سراسری پیشگامان رهایی',
+        subtitle: wednesdayLabel,
+        start: DateTime(2025, 11, 19, 19, 30),
+        end: DateTime(2025, 11, 19, 22, 0),
+        icon: Icons.celebration,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 3,
-        title: 'استراحت',
-        subtitle: 'زنگ تفریح',
-        icon: Icons.coffee,
-        status: StepStatus.completed,
-        color: const Color(0xFF8B4513),
-        time: '09:45',
+        title: 'حضور در محل اسکان و استراحت',
+        subtitle: wednesdayLabel,
+        start: DateTime(2025, 11, 19, 22, 30),
+        end: DateTime(2025, 11, 19, 23, 0),
+        icon: Icons.hotel,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 4,
-        title: 'درس دوم',
-        subtitle: 'پیشرفته',
-        icon: Icons.lightbulb,
-        status: StepStatus.completed,
-        time: '10:00',
+        title: 'اقامه نماز جماعت صبح',
+        subtitle: thursdayLabel,
+        start: DateTime(2025, 11, 20, 5, 30),
+        end: DateTime(2025, 11, 20, 6, 0),
+        icon: Icons.mosque,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 5,
-        title: 'نماز ظهر',
-        subtitle: 'وقت نماز',
-        icon: Icons.mosque,
-        status: StepStatus.completed,
-        color: const Color(0xFF2E7D32),
-        time: '12:30',
+        title: 'صرف صبحانه',
+        subtitle: thursdayLabel,
+        start: DateTime(2025, 11, 20, 6, 15),
+        end: DateTime(2025, 11, 20, 6, 45),
+        icon: Icons.breakfast_dining,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 6,
-        title: 'درس سوم',
-        subtitle: 'تخصصی',
-        icon: Icons.auto_stories,
-        status: StepStatus.unlocked,
-        time: '13:00',
+        title: 'حضور در محل دانشگاه',
+        subtitle: thursdayLabel,
+        start: DateTime(2025, 11, 20, 7, 15),
+        end: DateTime(2025, 11, 20, 7, 45),
+        icon: Icons.location_city,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 7,
-        title: 'ناهار',
-        subtitle: 'وقت غذا',
-        icon: Icons.restaurant,
-        status: StepStatus.unlocked,
-        color: const Color(0xFFFF6B35),
-        time: '13:30',
+        title: 'بخش خبرگانی-کارشناسی',
+        subtitle: thursdayLabel,
+        start: DateTime(2025, 11, 20, 8, 0),
+        end: DateTime(2025, 11, 20, 9, 40),
+        icon: Icons.groups_3,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 8,
-        title: 'درس چهارم',
-        subtitle: 'کاربردی',
-        icon: Icons.code,
-        status: StepStatus.unlocked,
-        time: '14:30',
+        title: 'بخش قانون‌گذاری',
+        subtitle: thursdayLabel,
+        start: DateTime(2025, 11, 20, 10, 0),
+        end: DateTime(2025, 11, 20, 11, 30),
+        icon: Icons.gavel,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 9,
-        title: 'استراحت',
-        subtitle: 'زنگ تفریح',
-        icon: Icons.coffee,
-        status: StepStatus.unlocked,
-        color: const Color(0xFF8B4513),
-        time: '15:15',
+        title: 'اقامه نماز ظهر و صرف ناهار در محوطه دانشگاه',
+        subtitle: thursdayLabel,
+        start: DateTime(2025, 11, 20, 11, 30),
+        end: DateTime(2025, 11, 20, 13, 45),
+        icon: Icons.restaurant,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 10,
-        title: 'درس پنجم',
-        subtitle: 'پروژه محور',
-        icon: Icons.work,
-        status: StepStatus.locked,
-        time: '15:30',
+        title: 'بخش حکمرانی و پرسش و پاسخ',
+        subtitle: thursdayLabel,
+        start: DateTime(2025, 11, 20, 14, 0),
+        end: DateTime(2025, 11, 20, 17, 0),
+        icon: Icons.account_balance,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 11,
-        title: 'نماز عصر',
-        subtitle: 'وقت نماز',
-        icon: Icons.mosque,
-        status: StepStatus.locked,
-        color: const Color(0xFF2E7D32),
-        time: '16:00',
+        title: 'اقامه نماز مغرب و عشا',
+        subtitle: thursdayLabel,
+        start: DateTime(2025, 11, 20, 17, 0),
+        end: DateTime(2025, 11, 20, 18, 0),
+        icon: Icons.nightlight_round,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 12,
-        title: 'درس ششم',
-        subtitle: 'بهینه‌سازی',
-        icon: Icons.tune,
-        status: StepStatus.locked,
-        time: '16:15',
+        title: 'عزیمت به مراسم جمع‌بندی و صرف شام',
+        subtitle: thursdayLabel,
+        start: DateTime(2025, 11, 20, 18, 15),
+        end: DateTime(2025, 11, 20, 19, 0),
+        icon: Icons.directions_bus,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 13,
-        title: 'استراحت',
-        subtitle: 'زنگ تفریح',
-        icon: Icons.coffee,
-        status: StepStatus.locked,
-        color: const Color(0xFF8B4513),
-        time: '17:00',
+        title: 'مراسم جمع‌بندی و پرسش و پاسخ',
+        subtitle: thursdayLabel,
+        start: DateTime(2025, 11, 20, 19, 0),
+        end: DateTime(2025, 11, 20, 22, 0),
+        icon: Icons.forum,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 14,
-        title: 'درس هفتم',
-        subtitle: 'تست و دیباگ',
-        icon: Icons.bug_report,
-        status: StepStatus.locked,
-        time: '17:15',
+        title: 'استراحت شبانه',
+        subtitle: thursdayLabel,
+        start: DateTime(2025, 11, 20, 23, 0),
+        end: DateTime(2025, 11, 20, 23, 59),
+        icon: Icons.bedtime,
       ),
-      CourseStep(
+      _ScheduleEvent(
         id: 15,
-        title: 'شام',
-        subtitle: 'وقت غذا',
-        icon: Icons.restaurant_menu,
-        status: StepStatus.locked,
-        color: const Color(0xFFFF6B35),
-        time: '19:00',
-      ),
-      CourseStep(
-        id: 16,
-        title: 'درس هشتم',
-        subtitle: 'استقرار',
-        icon: Icons.cloud_upload,
-        status: StepStatus.locked,
-        time: '19:30',
-      ),
-      CourseStep(
-        id: 17,
-        title: 'نماز مغرب',
-        subtitle: 'وقت نماز',
+        title: 'اقامه نماز جماعت صبح و صرف صبحانه',
+        subtitle: fridayLabel,
+        start: DateTime(2025, 11, 21, 5, 30),
+        end: DateTime(2025, 11, 21, 6, 15),
         icon: Icons.mosque,
-        status: StepStatus.locked,
-        color: const Color(0xFF2E7D32),
-        time: '19:45',
       ),
-      CourseStep(
-        id: 18,
-        title: 'درس نهم',
-        subtitle: 'نگهداری',
-        icon: Icons.settings,
-        status: StepStatus.locked,
-        time: '20:00',
+      _ScheduleEvent(
+        id: 16,
+        title: 'عزیمت به محل برگزاری اجتماع سراسری',
+        subtitle: fridayLabel,
+        start: DateTime(2025, 11, 21, 6, 30),
+        end: DateTime(2025, 11, 21, 7, 30),
+        icon: Icons.directions_walk,
       ),
-      CourseStep(
-        id: 19,
-        title: 'استراحت',
-        subtitle: 'زنگ تفریح',
-        icon: Icons.coffee,
-        status: StepStatus.locked,
-        color: const Color(0xFF8B4513),
-        time: '20:45',
-      ),
-      CourseStep(
-        id: 20,
-        title: 'درس دهم',
-        subtitle: 'پیشرفته',
-        icon: Icons.trending_up,
-        status: StepStatus.locked,
-        time: '21:00',
-      ),
-      CourseStep(
-        id: 21,
-        title: 'پایان',
+      _ScheduleEvent(
+        id: 17,
+        title: 'آغاز رسمی مراسم اجتماع سراسری',
+        subtitle: fridayLabel,
+        start: DateTime(2025, 11, 21, 8, 0),
+        end: DateTime(2025, 11, 21, 11, 0),
         icon: Icons.emoji_events,
-        status: StepStatus.locked,
+      ),
+      _ScheduleEvent(
+        id: 18,
+        title: 'اقامه نماز ظهر و عصر و صرف ناهار',
+        subtitle: fridayLabel,
+        start: DateTime(2025, 11, 21, 11, 0),
+        end: DateTime(2025, 11, 21, 13, 0),
+        icon: Icons.restaurant_menu,
+      ),
+      _ScheduleEvent(
+        id: 19,
+        title: 'پایان دوره و خداحافظی',
+        subtitle: fridayLabel,
+        start: DateTime(2025, 11, 21, 13, 0),
+        end: DateTime(2025, 11, 21, 13, 30),
+        icon: Icons.emoji_events,
         color: Colors.orange,
-        time: '21:30',
       ),
     ];
+  }
+
+  StepStatus _resolveStatus({
+    required DateTime now,
+    required DateTime start,
+    required DateTime end,
+    required bool isFirstEvent,
+  }) {
+    if (now.isAfter(end) || now.isAtSameMomentAs(end)) {
+      return StepStatus.completed;
+    }
+
+    if (isFirstEvent && now.isBefore(start)) {
+      return StepStatus.unlocked;
+    }
+
+    if ((now.isAfter(start) && now.isBefore(end)) ||
+        now.isAtSameMomentAs(start)) {
+      return StepStatus.unlocked;
+    }
+
+    return StepStatus.locked;
+  }
+
+  String _formatTimeRange(DateTime start, DateTime end) {
+    final startLabel = '${_twoDigits(start.hour)}:${_twoDigits(start.minute)}';
+    final endLabel = '${_twoDigits(end.hour)}:${_twoDigits(end.minute)}';
+    return '$startLabel الی $endLabel';
+  }
+
+  String _twoDigits(int value) {
+    return value.toString().padLeft(2, '0');
   }
 
   @override
@@ -272,17 +334,17 @@ class _CoursePathPageState extends State<CoursePathPage>
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.white,
-                AppColors.primary.withOpacity(0.03),
-              ],
+              colors: [Colors.white, AppColors.primary.withOpacity(0.03)],
             ),
           ),
           child: SafeArea(
             child: SingleChildScrollView(
               controller: _scrollController,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 16.0,
+                ),
                 child: _buildPathWidget(),
               ),
             ),
@@ -295,14 +357,14 @@ class _CoursePathPageState extends State<CoursePathPage>
   Widget _buildPathWidget() {
     // لیست را معکوس می‌کنیم تا ابتدای دوره در پایین باشد
     final reversedSteps = courseSteps.reversed.toList();
-    
+
     return Column(
       children: reversedSteps.asMap().entries.map((entry) {
         final index = entry.key;
         final step = entry.value;
         final originalIndex = courseSteps.length - 1 - index;
         final isLast = index == reversedSteps.length - 1;
-        
+
         return Column(
           children: [
             _buildStepItem(step, originalIndex),
@@ -315,7 +377,7 @@ class _CoursePathPageState extends State<CoursePathPage>
 
   Widget _buildStepItem(CourseStep step, int index) {
     final isLeft = index % 2 == 0;
-    
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -326,7 +388,10 @@ class _CoursePathPageState extends State<CoursePathPage>
               children: [
                 if (step.time != null) ...[
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -356,7 +421,10 @@ class _CoursePathPageState extends State<CoursePathPage>
                 ],
                 if (step.subtitle != null) ...[
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -407,7 +475,10 @@ class _CoursePathPageState extends State<CoursePathPage>
               children: [
                 if (step.time != null) ...[
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -437,7 +508,10 @@ class _CoursePathPageState extends State<CoursePathPage>
                 ],
                 if (step.subtitle != null) ...[
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -485,10 +559,10 @@ class _CoursePathPageState extends State<CoursePathPage>
     final isLeft = originalIndex % 2 == 0;
     final nextStep = courseSteps[nextOriginalIndex];
     final currentStep = courseSteps[originalIndex];
-    
+
     Color connectorColor;
     double strokeWidth = 4;
-    if (currentStep.status == StepStatus.completed && 
+    if (currentStep.status == StepStatus.completed &&
         nextStep.status != StepStatus.locked) {
       connectorColor = AppColors.primary;
       strokeWidth = 4;
@@ -508,22 +582,32 @@ class _CoursePathPageState extends State<CoursePathPage>
         const double spacing = 16;
         const double sideSpace = 80;
         const double padding = 20;
-        
+
         // موقعیت مرکز مربع فعلی (پایین)
         double currentCenterX;
         if (isLeft) {
           // مربع در سمت راست (RTL)
-          currentCenterX = constraints.maxWidth - padding - sideSpace - spacing - squareCenter;
+          currentCenterX =
+              constraints.maxWidth -
+              padding -
+              sideSpace -
+              spacing -
+              squareCenter;
         } else {
           // مربع در سمت چپ (RTL)
           currentCenterX = padding + sideSpace + spacing + squareCenter;
         }
-        
+
         // موقعیت مرکز مربع بعدی (بالا) - برعکس
         double nextCenterX;
         if (!isLeft) {
           // مربع بعدی در سمت راست (RTL)
-          nextCenterX = constraints.maxWidth - padding - sideSpace - spacing - squareCenter;
+          nextCenterX =
+              constraints.maxWidth -
+              padding -
+              sideSpace -
+              spacing -
+              squareCenter;
         } else {
           // مربع بعدی در سمت چپ (RTL)
           nextCenterX = padding + sideSpace + spacing + squareCenter;
@@ -551,13 +635,16 @@ class _CoursePathPageState extends State<CoursePathPage>
     Color iconColor = Colors.white;
     double squareSize = 80;
     double borderRadius = 16;
-    
+    final firstStepId = courseSteps.first.id;
+    final lastStepId = courseSteps.last.id;
+    final isEdgeStep = step.id == firstStepId || step.id == lastStepId;
+
     switch (step.status) {
       case StepStatus.completed:
-        squareColor = step.color ?? AppColors.primary;
+        squareColor = step.color ?? Colors.green;
         break;
       case StepStatus.unlocked:
-        squareColor = AppColors.primary;
+        squareColor = step.color ?? AppColors.primary;
         break;
       case StepStatus.locked:
         squareColor = AppColors.grey;
@@ -572,10 +659,7 @@ class _CoursePathPageState extends State<CoursePathPage>
       decoration: BoxDecoration(
         color: squareColor,
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(
-          color: Colors.white,
-          width: 4,
-        ),
+        border: Border.all(color: Colors.white, width: 4),
         boxShadow: [
           BoxShadow(
             color: squareColor.withOpacity(0.4),
@@ -585,17 +669,11 @@ class _CoursePathPageState extends State<CoursePathPage>
           ),
         ],
       ),
-      child: Icon(
-        step.icon,
-        color: iconColor,
-        size: 36,
-      ),
+      child: Icon(step.icon, color: iconColor, size: 36),
     );
 
     // اضافه کردن تیک برای مراحل تکمیل شده (به جز شروع و پایان)
-    if (step.status == StepStatus.completed && 
-        step.id != 0 && 
-        step.id != courseSteps.length - 1) {
+    if (step.status == StepStatus.completed && !isEdgeStep) {
       baseSquareWidget = Stack(
         alignment: Alignment.center,
         children: [
@@ -617,11 +695,7 @@ class _CoursePathPageState extends State<CoursePathPage>
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.check,
-                color: Colors.white,
-                size: 14,
-              ),
+              child: const Icon(Icons.check, color: Colors.white, size: 14),
             ),
           ),
         ],
@@ -629,7 +703,7 @@ class _CoursePathPageState extends State<CoursePathPage>
     }
 
     // استایل خاص برای پرچم شروع
-    if (step.id == 0) {
+    if (step.id == firstStepId) {
       baseSquareWidget = Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius),
@@ -646,7 +720,7 @@ class _CoursePathPageState extends State<CoursePathPage>
     }
 
     // استایل خاص برای پرچم پایان
-    if (step.id == courseSteps.length - 1) {
+    if (step.id == lastStepId) {
       baseSquareWidget = Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius),
@@ -677,7 +751,9 @@ class _CoursePathPageState extends State<CoursePathPage>
                 borderRadius: BorderRadius.circular(borderRadius),
                 boxShadow: [
                   BoxShadow(
-                    color: squareColor.withOpacity(0.3 * (2 - _pulseAnimation.value)),
+                    color: squareColor.withOpacity(
+                      0.3 * (2 - _pulseAnimation.value),
+                    ),
                     blurRadius: 20 * _pulseAnimation.value,
                     spreadRadius: 5 * _pulseAnimation.value,
                   ),
@@ -735,7 +811,7 @@ class CurvedConnectorPainter extends CustomPainter {
 
     // نقطه شروع (بالا - مرکز مربع فعلی - چون لیست معکوس است)
     final startPoint = Offset(startX, 0);
-    
+
     // نقطه پایان (پایین - مرکز مربع بعدی - چون لیست معکوس است)
     final endPoint = Offset(endX, size.height);
 
@@ -745,16 +821,16 @@ class CurvedConnectorPainter extends CustomPainter {
 
     // محاسبه نقاط کنترل برای منحنی S شکل نرم
     final midY = size.height / 2;
-    
+
     // محاسبه فاصله افقی برای تعیین شدت منحنی
     final horizontalDistance = (endPoint.dx - startPoint.dx).abs();
     final curveIntensity = horizontalDistance * 0.6; // شدت منحنی
-    
+
     // نقاط کنترل برای منحنی S شکل
     // نقطه کنترل اول: از نقطه شروع به سمت وسط با انحنا
     final controlPoint1X = startPoint.dx;
     final controlPoint1Y = midY - curveIntensity * 0.3;
-    
+
     // نقطه کنترل دوم: از وسط به سمت نقطه پایان با انحنا
     final controlPoint2X = endPoint.dx;
     final controlPoint2Y = midY + curveIntensity * 0.3;
@@ -781,3 +857,22 @@ class CurvedConnectorPainter extends CustomPainter {
   }
 }
 
+class _ScheduleEvent {
+  final int id;
+  final String title;
+  final String subtitle;
+  final DateTime start;
+  final DateTime end;
+  final IconData icon;
+  final Color? color;
+
+  const _ScheduleEvent({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.start,
+    required this.end,
+    required this.icon,
+    this.color,
+  });
+}

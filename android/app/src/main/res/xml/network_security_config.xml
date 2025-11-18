@@ -9,10 +9,15 @@
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">pishgaman.ir</domain>
         <domain includeSubdomains="true">pishgaman.s79.ir</domain>
+        <domain includeSubdomains="true">sinaseifouri.ir</domain>
         <trust-anchors>
             <certificates src="system" />
             <certificates src="user" />
         </trust-anchors>
+    </domain-config>
+    <!-- Allow HTTP (cleartext) for g.sinaseifouri.ir for testing -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">g.sinaseifouri.ir</domain>
     </domain-config>
 </network-security-config>
 

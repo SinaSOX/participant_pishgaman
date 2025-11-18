@@ -274,7 +274,7 @@ class _Sing_upEntryPage extends State<Sing_upEntryPage>
         if (mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => MyHomePage(title: 'شرکت کننده پیشگامان'),
+              builder: (context) => MyHomePage(title: 'پیشگامان رهایی'),
             ),
           );
         }

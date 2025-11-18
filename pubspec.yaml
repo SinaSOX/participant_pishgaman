@@ -74,6 +74,14 @@ dependencies:
   # Screenshot and image saving
   screenshot: ^3.0.0
   image: ^4.1.7
+  
+  # OneSignal push notifications
+  onesignal_flutter: ^5.0.0
+  webview_flutter: ^4.7.0
+  
+  # Map support
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:
