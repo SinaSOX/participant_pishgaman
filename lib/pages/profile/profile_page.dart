@@ -474,7 +474,29 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  // Helper method to count information boxes
+  int _countInformationBoxes() {
+    int count = 0;
+    if (_profile!.aboutMe != null && _profile!.aboutMe!.isNotEmpty) count++;
+    if (_profile!.skills != null && _profile!.skills!.isNotEmpty) count++;
+    if (_profile!.educationalCredentials != null &&
+        _profile!.educationalCredentials!.isNotEmpty) count++;
+    if (_profile!.workExperience != null &&
+        _profile!.workExperience!.isNotEmpty) count++;
+    if (_profile!.completedProjects != null &&
+        _profile!.completedProjects!.isNotEmpty) count++;
+    if (_profile!.certifications != null &&
+        _profile!.certifications!.isNotEmpty) count++;
+    if (_profile!.socialNetworks != null &&
+        _profile!.socialNetworks!.isNotEmpty) count++;
+    if (_profile!.contactInfo != null &&
+        _profile!.contactInfo!.isNotEmpty) count++;
+    return count;
+  }
+
   Widget _buildProfileContent() {
+    final informationBoxCount = _countInformationBoxes();
+    
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -548,6 +570,42 @@ class _ProfilePageState extends State<ProfilePage> {
               title: 'اطلاعات تماس',
               icon: Icons.contact_phone_outlined,
               child: _buildContactInfo(),
+            ),
+
+          // Show message if less than 2 information boxes
+          if (informationBoxCount < 2)
+            Container(
+              margin: const EdgeInsets.only(top: 20),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'برای تکمیل پروفایل خود، اطلاعات بیشتری اضافه کنید. برای این کار روی دکمه قلم در بالا سمت چپ صفحه کلیک کنید.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.primary,
+                        fontFamily: 'Farhang',
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
         ],
       ),

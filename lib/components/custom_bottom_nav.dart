@@ -39,7 +39,7 @@ class CustomBottomNav extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _buildNavItem(
-                      icon: FontAwesomeIcons.user,
+                      icon: FontAwesomeIcons.solidUser,
                       label: 'پروفایل',
                       index: 0,
                       isCenter: false,
@@ -122,7 +122,7 @@ class CustomBottomNav extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              color: isSelected ? AppColors.primary : AppColors.grey,
+              color: isSelected ? AppColors.primary : Colors.white,
               size: 24,
             ),
           ),
@@ -154,7 +154,7 @@ class CustomBottomNav extends StatelessWidget {
                     child: Icon(
                       icon,
                       key: ValueKey('icon_${index}_$currentIndex'),
-                      color: isSelected ? Colors.white : AppColors.grey,
+                      color: Colors.white,
                       size: 22,
                     ),
                   ),
@@ -171,7 +171,7 @@ class CustomBottomNav extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 10,
                             fontFamily: 'Farhang',
-                            color: isSelected ? Colors.white : AppColors.grey,
+                            color: Colors.white,
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                             height: 1.2,
                           ),

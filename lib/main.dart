@@ -233,6 +233,9 @@ class _AppInitializerState extends State<AppInitializer> {
   }
 
   Future<void> _checkAuthAndIntro() async {
+    // Minimum delay to prevent black screen (very short)
+    await Future.delayed(const Duration(milliseconds: 300));
+    
     try {
       final authService = AuthService();
       await authService.init();
